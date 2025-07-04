@@ -1,11 +1,12 @@
 import "./App.css";
 import TodosContainer from "../components/TodosContainer";
 import TodoModal from "../components/TodoModal";
+import KanbarBoard from "../components/KanbarBoard";
 
 function App() {
   return (
     <main>
-      <TodosContainer />
+      <KanbarBoard />
       <TodoModal />
     </main>
   );

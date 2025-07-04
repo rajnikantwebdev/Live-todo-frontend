@@ -1,6 +1,15 @@
-const TodoCard = ({ todoData }) => {
-  const { title, description, assignedUser, status, priority } = todoData;
+import { useDrag } from "react-dnd";
 
+const TodoCard = ({ todoData, moveCard }) => {
+  const [, drag] = useDrag(() => ({
+    type: "task",
+    item: todoData,
+    end(item, monitor) {
+      console.log("Dropped!", item);
+    },
+  }));
+
+  const { title, description, assignedUser, status, priority } = todoData;
   const getPriorityColor = (priority) => {
     switch (priority?.toLowerCase()) {
       case "high":
@@ -36,7 +45,7 @@ const TodoCard = ({ todoData }) => {
   };
 
   return (
-    <div style={styles.card}>
+    <div style={styles.card} ref={drag}>
       <div style={styles.header}>
         <h3 style={styles.title}>{title || "Untitled Todo"}</h3>
         <div style={styles.actions}>
@@ -87,7 +96,9 @@ const TodoCard = ({ todoData }) => {
         <div style={styles.metadata}>
           <div style={styles.metadataItem}>
             <span style={styles.label}>Assigned to:</span>
-            <span style={styles.value}>{assignedUser || "Unassigned"}</span>
+            <span style={styles.value}>
+              {assignedUser.username || "Unassigned"}
+            </span>
           </div>
 
           <div style={styles.statusPriority}>
