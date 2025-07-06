@@ -2,10 +2,10 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
-import LoginPage from "../components/LoginPage.jsx";
-import RegisterPage from "../components/RegisterPage.jsx";
+import LoginPage from "./components/LoginPage.jsx";
+import RegisterPage from "./components/RegisterPage.jsx";
 import { BrowserRouter, Routes, Route } from "react-router";
-import Authenticated from "../components/Authenticated.jsx";
+import Authenticated from "./components/Authenticated.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

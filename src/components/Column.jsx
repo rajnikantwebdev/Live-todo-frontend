@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import TodoCard from "./TodoCard";
 import { useCallback } from "react";
 import { useDrop } from "react-dnd";
-import { socket } from "../socketIo";
+import { socket } from "../../socketIo";
 
 const Column = ({ title, tasks, columnColor, columnKey, onDropTask }) => {
   const [{ canDrop, isOver }, drop] = useDrop({

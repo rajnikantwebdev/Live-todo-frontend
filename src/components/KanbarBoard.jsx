@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { socket } from "../socketIo";
+import { socket } from "../../socketIo";
 import { useContext } from "react";
 import { TaskDataContext } from "./TaskContext";
 
@@ -45,7 +45,6 @@ const KanbarBoard = () => {
 
   useEffect(() => {
     const handleTaskCreated = (newTask) => {
-      console.log("newTask, ", newTask);
       setTodosList((prev) => {
         if (newTask.status === "Todo") {
           return {
@@ -75,7 +74,6 @@ const KanbarBoard = () => {
 
   useEffect(() => {
     const handleTaskUpated = ({ updatedTask, oldStatus }) => {
-      console.log("old-status: ", oldStatus, updatedTask.status);
       setTodosList((prev) => {
         const newStatus = updatedTask.status;
         const newState = {
@@ -121,13 +119,17 @@ const KanbarBoard = () => {
   const onDropTask = async (task, targetColumn) => {
     console.log(task.status, targetColumn);
     if (task.status === targetColumn) return;
-    let updatedTask = null;
     try {
       await axios.put(
         `${import.meta.env.VITE_SERVER_URL}/api/task/update/${task._id}`,
         {
           ...task,
           status: targetColumn,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
     } catch (error) {
