@@ -1,5 +1,8 @@
-import { useState, useEffect } from "react";
+import axios from "axios";
+import { useState, useEffect, useContext } from "react";
 import { createPortal } from "react-dom";
+import { socket } from "../socketIo";
+import { TaskDataContext } from "./TaskContext";
 
 const TodoModal = ({ isOpen, onClose, onSubmit, todoData = null }) => {
   const [formData, setFormData] = useState({
@@ -9,33 +12,51 @@ const TodoModal = ({ isOpen, onClose, onSubmit, todoData = null }) => {
     status: "",
     priority: "",
   });
+  const [assignedUserOptions, setAssignedUserOptions] = useState([]);
+  const { setToBeEdit } = useContext(TaskDataContext);
 
-  const assignedUserOptions = [
-    { value: "", label: "Select User" },
-    { value: "john-doe", label: "John Doe" },
-    { value: "jane-smith", label: "Jane Smith" },
-    { value: "mike-johnson", label: "Mike Johnson" },
-    { value: "sarah-wilson", label: "Sarah Wilson" },
-    { value: "david-brown", label: "David Brown" },
-  ];
+  useEffect(() => {
+    const fetchUserList = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_SERVER_URL}/api/user/list`
+        );
+        if (response.status === 200) {
+          const options = response.data?.userList.map((user) => ({
+            value: user._id,
+            label: user.username,
+          }));
+          setAssignedUserOptions(options);
+        }
+      } catch (error) {
+        console.log("unable to fetch user list ", error);
+      }
+    };
+    if (isOpen) {
+      fetchUserList();
+    }
+  }, [isOpen]);
 
   const statusOptions = [
     { value: "", label: "Select Status" },
-    { value: "pending", label: "Pending" },
-    { value: "in-progress", label: "In Progress" },
-    { value: "completed", label: "Completed" },
+    { value: "Todo", label: "Todo" },
+    { value: "In Progress", label: "In Progress" },
+    { value: "Done", label: "Done" },
   ];
 
   const priorityOptions = [
     { value: "", label: "Select Priority" },
-    { value: "low", label: "Low" },
-    { value: "medium", label: "Medium" },
-    { value: "high", label: "High" },
+    { value: "Low", label: "Low" },
+    { value: "Medium", label: "Medium" },
+    { value: "High", label: "High" },
   ];
 
   useEffect(() => {
     if (todoData) {
-      setFormData(todoData);
+      setFormData({
+        ...todoData,
+        assignedUser: todoData.assignedUser._id,
+      });
     } else {
       setFormData({
         title: "",
@@ -47,6 +68,7 @@ const TodoModal = ({ isOpen, onClose, onSubmit, todoData = null }) => {
     }
   }, [todoData, isOpen]);
 
+  console.log(formData);
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -55,17 +77,42 @@ const TodoModal = ({ isOpen, onClose, onSubmit, todoData = null }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(formData);
-    onClose();
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault();
+      if (todoData) {
+        await axios.put(
+          `${import.meta.env.VITE_SERVER_URL}/api/task/update/${todoData._id}`,
+          formData
+        );
+      } else {
+        const response = await axios.post(
+          `${import.meta.env.VITE_SERVER_URL}/api/task/add`,
+          formData
+        );
+        console.log("response-add: ", response);
+      }
+
+      onClose();
+    } catch (error) {
+      console.log("Unable to add Task ", error);
+    } finally {
+      setToBeEdit();
+    }
   };
 
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {
       onClose();
+      setToBeEdit();
     }
   };
+
+  const handleCancel = () => {
+    onClose();
+    setToBeEdit();
+  };
+  console.log(todoData);
 
   if (!isOpen) return null;
 
@@ -171,7 +218,11 @@ const TodoModal = ({ isOpen, onClose, onSubmit, todoData = null }) => {
           </div>
 
           <div style={styles.buttonGroup}>
-            <button type="button" onClick={onClose} style={styles.cancelButton}>
+            <button
+              type="button"
+              onClick={handleCancel}
+              style={styles.cancelButton}
+            >
               Cancel
             </button>
             <button

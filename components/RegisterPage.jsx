@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "react-router";
+import axios from "axios";
+import { useNavigate } from "react-router";
 
 const RegisterPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -10,7 +13,10 @@ const RegisterPage = () => {
   const [errors, setErrors] = useState({
     username: "",
     password: "",
+    submissionError: "",
   });
+
+  const [submissionMessage, setSubmissionMessage] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -30,9 +36,6 @@ const RegisterPage = () => {
       newErrors.password = "Password is required";
     } else if (formData.password.length < 8) {
       newErrors.password = "Password must be at least 8 characters long";
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password =
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number";
     }
 
     setErrors(newErrors);
@@ -62,24 +65,27 @@ const RegisterPage = () => {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Registration successful:", formData);
-      alert("Registration successful!");
-      // Reset form
+      const response = await axios.post(
+        `${import.meta.env.VITE_SERVER_URL}/api/user/register`,
+        formData
+      );
+      console.log(response);
+      setSubmissionMessage(response?.data?.message);
       setFormData({ username: "", password: "" });
+      if (response.status === 201) {
+        setTimeout(() => navigate("/login"), 2000);
+      }
     } catch (error) {
-      console.error("Registration failed:", error);
-      alert("Registration failed. Please try again.");
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        setErrors({ ...error, submissionError: error.response.data.message });
+      }
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleLoginClick = () => {
-    // In a real app, this would navigate to login page
-    console.log("Navigate to login page");
-    alert("Navigating to login page...");
   };
 
   return (
@@ -147,6 +153,16 @@ const RegisterPage = () => {
           <Link style={styles.linkButton} to={"/login"}>
             Already have an account? Login here
           </Link>
+        </div>
+        <div style={styles.successMessage}>
+          {submissionMessage && <span>{submissionMessage}</span>}
+        </div>
+        <div style={{ textAlign: "center" }}>
+          {errors.submissionError && (
+            <span style={{ ...styles.errorMessage, fontSize: "16px" }}>
+              {errors.submissionError}
+            </span>
+          )}
         </div>
       </div>
     </div>
@@ -244,6 +260,13 @@ const styles = {
     textDecoration: "underline",
     fontSize: "14px",
     fontWeight: "500",
+  },
+  successMessage: {
+    fontSize: "14px",
+    color: "#007bff",
+    textDecoration: "underline",
+    textAlign: "center",
+    marginTop: "12px",
   },
 };
 

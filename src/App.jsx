@@ -1,14 +1,19 @@
 import "./App.css";
-import TodosContainer from "../components/TodosContainer";
-import TodoModal from "../components/TodoModal";
 import KanbarBoard from "../components/KanbarBoard";
+import Header from "../components/Header";
+import ModalContextProvider from "../components/ModalContext";
+import TaskDataContextProvider from "../components/TaskContext";
 
 function App() {
   return (
-    <main>
-      <KanbarBoard />
-      <TodoModal />
-    </main>
+    <TaskDataContextProvider>
+      <main>
+        <ModalContextProvider>
+          <Header />
+          <KanbarBoard />
+        </ModalContextProvider>
+      </main>
+    </TaskDataContextProvider>
   );
 }
 

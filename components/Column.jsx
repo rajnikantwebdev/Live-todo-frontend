@@ -1,21 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import TodoCard from "./TodoCard";
 import { useCallback } from "react";
-import update from "immutability-helper";
 import { useDrop } from "react-dnd";
+import { socket } from "../socketIo";
 
 const Column = ({ title, tasks, columnColor, columnKey, onDropTask }) => {
-  const moveCard = useCallback((dragIndex, hoverIndex) => {
-    setCards((prevCards) =>
-      update(prevCards, {
-        $splice: [
-          [dragIndex, 1],
-          [hoverIndex, 0, prevCards[dragIndex]],
-        ],
-      })
-    );
-  }, []);
-
   const [{ canDrop, isOver }, drop] = useDrop({
     accept: "task",
     drop: (item) => {
@@ -26,6 +15,7 @@ const Column = ({ title, tasks, columnColor, columnKey, onDropTask }) => {
       canDrop: monitor.canDrop(),
     }),
   });
+
   return (
     <div style={styles.column}>
       <div style={{ ...styles.columnHeader, backgroundColor: columnColor }}>
@@ -35,7 +25,7 @@ const Column = ({ title, tasks, columnColor, columnKey, onDropTask }) => {
 
       <div ref={drop} style={styles.tasksContainer}>
         {tasks.map((task) => (
-          <TodoCard key={task._id} todoData={task} moveCard={moveCard} />
+          <TodoCard key={task._id} todoData={task} />
         ))}
 
         {tasks.length === 0 && (

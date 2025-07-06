@@ -4,13 +4,12 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { socket } from "../socketIo";
+import { useContext } from "react";
+import { TaskDataContext } from "./TaskContext";
 
 const KanbarBoard = () => {
-  const [todosList, setTodosList] = useState({
-    todo: [],
-    inProgress: [],
-    done: [],
-  });
+  const { todosList, setTodosList } = useContext(TaskDataContext);
 
   useEffect(() => {
     const fetchTodos = async () => {
@@ -42,6 +41,36 @@ const KanbarBoard = () => {
       }
     };
     fetchTodos();
+  }, []);
+
+  useEffect(() => {
+    const handleTaskCreated = (newTask) => {
+      console.log("newTask, ", newTask);
+      setTodosList((prev) => {
+        if (newTask.status === "Todo") {
+          return {
+            ...prev,
+            todo: [...prev.todo, newTask],
+          };
+        } else if (newTask.status === "In Progress") {
+          return {
+            ...prev,
+            inProgress: [...prev.inProgress, newTask],
+          };
+        } else {
+          return {
+            ...prev,
+            done: [...prev.done, newTask],
+          };
+        }
+      });
+    };
+
+    socket.on("task:created", handleTaskCreated);
+
+    return () => {
+      socket.off("task:created", handleTaskCreated);
+    };
   }, []);
 
   const columnConfigs = [

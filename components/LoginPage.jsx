@@ -1,7 +1,10 @@
+import axios from "axios";
 import React, { useState } from "react";
 import { Link } from "react-router";
+import { useNavigate } from "react-router";
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -10,19 +13,17 @@ const LoginPage = () => {
   const [errors, setErrors] = useState({
     username: "",
     password: "",
+    submissionError: "",
   });
-
+  const [submissionMessage, setSubmissionMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateForm = () => {
     const newErrors = {};
-
-    // Username validation
     if (!formData.username.trim()) {
       newErrors.username = "Username is required";
     }
 
-    // Password validation
     if (!formData.password) {
       newErrors.password = "Password is required";
     }
@@ -55,30 +56,28 @@ const LoginPage = () => {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Login successful:", formData);
-      alert("Login successful!");
-      // Reset form
+      const response = await axios.post(
+        `${import.meta.env.VITE_SERVER_URL}/api/user/login`,
+        formData
+      );
+      if (response.status === 200) {
+        localStorage.setItem("token", response.data.token);
+        setSubmissionMessage(response.data.message);
+        setTimeout(() => navigate("/"), 2000);
+      }
       setFormData({ username: "", password: "" });
     } catch (error) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        setErrors({ ...error, submissionError: error.response.data.message });
+      }
       console.error("Login failed:", error);
-      alert("Login failed. Please check your credentials.");
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleRegisterClick = () => {
-    // In a real app, this would navigate to register page
-    console.log("Navigate to register page");
-    alert("Navigating to register page...");
-  };
-
-  const handleForgotPasswordClick = () => {
-    // In a real app, this would navigate to forgot password page
-    console.log("Navigate to forgot password page");
-    alert("Navigating to forgot password page...");
   };
 
   return (
@@ -129,16 +128,6 @@ const LoginPage = () => {
             )}
           </div>
 
-          <div style={styles.forgotPassword}>
-            <button
-              type="button"
-              onClick={handleForgotPasswordClick}
-              style={styles.forgotPasswordLink}
-            >
-              Forgot Password?
-            </button>
-          </div>
-
           <button
             type="button"
             onClick={handleSubmit}
@@ -155,6 +144,16 @@ const LoginPage = () => {
           <Link style={styles.linkButton} to={"/register"}>
             Don't have an account? Register here
           </Link>
+        </div>
+        <div style={styles.successMessage}>
+          {submissionMessage && <span>{submissionMessage}</span>}
+        </div>
+        <div style={{ textAlign: "center" }}>
+          {errors.submissionError && (
+            <span style={{ ...styles.errorMessage, fontSize: "16px" }}>
+              {errors.submissionError}
+            </span>
+          )}
         </div>
       </div>
     </div>
@@ -221,19 +220,7 @@ const styles = {
     color: "#dc3545",
     marginTop: "4px",
   },
-  forgotPassword: {
-    textAlign: "right",
-    marginTop: "-10px",
-  },
-  forgotPasswordLink: {
-    background: "none",
-    border: "none",
-    color: "#007bff",
-    cursor: "pointer",
-    textDecoration: "underline",
-    fontSize: "14px",
-    fontWeight: "400",
-  },
+
   button: {
     padding: "14px 24px",
     fontSize: "16px",
@@ -265,6 +252,14 @@ const styles = {
     textDecoration: "underline",
     fontSize: "14px",
     fontWeight: "500",
+  },
+
+  successMessage: {
+    fontSize: "14px",
+    color: "#007bff",
+    textDecoration: "underline",
+    textAlign: "center",
+    marginTop: "12px",
   },
 };
 
