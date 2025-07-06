@@ -2,6 +2,8 @@ import axios from "axios";
 import React, { useState } from "react";
 import { Link } from "react-router";
 import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -39,7 +41,6 @@ const LoginPage = () => {
       [name]: value,
     }));
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -62,7 +63,9 @@ const LoginPage = () => {
       );
       if (response.status === 200) {
         localStorage.setItem("token", response.data.token);
-        setSubmissionMessage(response.data.message);
+        toast(response.data.message, {
+          type: "success",
+        });
         setTimeout(() => navigate("/"), 2000);
       }
       setFormData({ username: "", password: "" });
@@ -72,9 +75,10 @@ const LoginPage = () => {
         error.response.data &&
         error.response.data.message
       ) {
-        setErrors({ ...error, submissionError: error.response.data.message });
+        toast(error.response.data.message, {
+          type: "error",
+        });
       }
-      console.error("Login failed:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -82,6 +86,7 @@ const LoginPage = () => {
 
   return (
     <div style={styles.container}>
+      <ToastContainer />
       <div style={styles.formContainer}>
         <h2 style={styles.title}>Welcome Back</h2>
 
@@ -144,16 +149,6 @@ const LoginPage = () => {
           <Link style={styles.linkButton} to={"/register"}>
             Don't have an account? Register here
           </Link>
-        </div>
-        <div style={styles.successMessage}>
-          {submissionMessage && <span>{submissionMessage}</span>}
-        </div>
-        <div style={{ textAlign: "center" }}>
-          {errors.submissionError && (
-            <span style={{ ...styles.errorMessage, fontSize: "16px" }}>
-              {errors.submissionError}
-            </span>
-          )}
         </div>
       </div>
     </div>

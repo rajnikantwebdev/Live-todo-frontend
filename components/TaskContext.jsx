@@ -9,7 +9,7 @@ const TaskDataContextProvider = ({ children }) => {
     done: [],
   });
   const [toBeEdit, setToBeEdit] = useState();
-
+  const isAuth = localStorage.getItem("token") || null;
   const handleEdit = (id, status) => {
     setToBeEdit(
       todosList[
@@ -23,7 +23,14 @@ const TaskDataContextProvider = ({ children }) => {
 
   return (
     <TaskDataContext.Provider
-      value={{ toBeEdit, todosList, setTodosList, setToBeEdit, handleEdit }}
+      value={{
+        toBeEdit,
+        todosList,
+        setTodosList,
+        setToBeEdit,
+        handleEdit,
+        isAuth,
+      }}
     >
       {children}
     </TaskDataContext.Provider>

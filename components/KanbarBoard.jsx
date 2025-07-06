@@ -25,9 +25,9 @@ const KanbarBoard = () => {
           };
 
           response.data?.data.forEach((t) => {
-            if (t.status === "Todo") {
+            if (t.status === "todo") {
               newTodo.todo.push(t);
-            } else if (t.status === "Done") {
+            } else if (t.status === "done") {
               newTodo.done.push(t);
             } else {
               newTodo.inProgress.push(t);
@@ -73,26 +73,66 @@ const KanbarBoard = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const handleTaskUpated = ({ updatedTask, oldStatus }) => {
+      console.log("old-status: ", oldStatus, updatedTask.status);
+      setTodosList((prev) => {
+        const newStatus = updatedTask.status;
+        const newState = {
+          todo: [...prev.todo],
+          inProgress: [...prev.inProgress],
+          done: [...prev.done],
+        };
+
+        const getKey = (status) => {
+          if (status === "todo") return "todo";
+          if (status === "inProgress") return "inProgress";
+          if (status === "done") return "done";
+        };
+
+        const oldKey = getKey(oldStatus);
+        const newKey = getKey(newStatus);
+
+        if (oldKey === newKey) {
+          newState[oldKey] = newState[oldKey].map((t) =>
+            t._id === updatedTask._id ? updatedTask : t
+          );
+        } else {
+          newState[oldKey] = newState[oldKey].filter(
+            (t) => t._id !== updatedTask._id
+          );
+          newState[newKey].unshift(updatedTask);
+        }
+
+        return newState;
+      });
+    };
+
+    socket.on("task:updated", handleTaskUpated);
+    return () => socket.off("task:updated", handleTaskUpated);
+  }, []);
+
   const columnConfigs = [
     { title: "Todo", key: "todo", color: "#e3f2fd" },
     { title: "In Progress", key: "inProgress", color: "#fff3e0" },
     { title: "Done", key: "done", color: "#e8f5e8" },
   ];
 
-  const onDropTask = (task, targetColumn) => {
+  const onDropTask = async (task, targetColumn) => {
+    console.log(task.status, targetColumn);
     if (task.status === targetColumn) return;
-
-    setTodosList((prev) => {
-      const newList = {
-        todo: prev.todo.filter((t) => t._id !== task._id),
-        inProgress: prev.inProgress.filter((t) => t._id !== task._id),
-        done: prev.done.filter((t) => t._id !== task._id),
-      };
-      const updatedTask = { ...task, status: targetColumn };
-      newList[targetColumn].push(updatedTask);
-
-      return newList;
-    });
+    let updatedTask = null;
+    try {
+      await axios.put(
+        `${import.meta.env.VITE_SERVER_URL}/api/task/update/${task._id}`,
+        {
+          ...task,
+          status: targetColumn,
+        }
+      );
+    } catch (error) {
+      console.log("Unable to update the task ", error);
+    }
   };
 
   return (

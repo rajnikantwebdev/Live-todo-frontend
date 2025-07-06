@@ -1,10 +1,12 @@
 import axios from "axios";
 import { useState, useEffect, useContext } from "react";
 import { createPortal } from "react-dom";
-import { socket } from "../socketIo";
 import { TaskDataContext } from "./TaskContext";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router";
 
 const TodoModal = ({ isOpen, onClose, onSubmit, todoData = null }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -39,9 +41,9 @@ const TodoModal = ({ isOpen, onClose, onSubmit, todoData = null }) => {
 
   const statusOptions = [
     { value: "", label: "Select Status" },
-    { value: "Todo", label: "Todo" },
-    { value: "In Progress", label: "In Progress" },
-    { value: "Done", label: "Done" },
+    { value: "todo", label: "Todo" },
+    { value: "inProgress", label: "In Progress" },
+    { value: "done", label: "Done" },
   ];
 
   const priorityOptions = [
@@ -68,7 +70,6 @@ const TodoModal = ({ isOpen, onClose, onSubmit, todoData = null }) => {
     }
   }, [todoData, isOpen]);
 
-  console.log(formData);
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -83,20 +84,42 @@ const TodoModal = ({ isOpen, onClose, onSubmit, todoData = null }) => {
       if (todoData) {
         await axios.put(
           `${import.meta.env.VITE_SERVER_URL}/api/task/update/${todoData._id}`,
-          formData
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
         );
       } else {
         const response = await axios.post(
           `${import.meta.env.VITE_SERVER_URL}/api/task/add`,
-          formData
+          formData,
+          {
+            headers: {
+              Authorization: `${localStorage.getItem("token")}`,
+            },
+          }
         );
-        console.log("response-add: ", response);
+
+        if (response.status === 201) {
+          toast(response.data.message, {
+            type: "success",
+          });
+        }
       }
 
       onClose();
     } catch (error) {
+      if (error.response && error.response.data) {
+        toast(error.response.data.message, {
+          type: "error",
+        });
+        localStorage.removeItem("token");
+      }
       console.log("Unable to add Task ", error);
     } finally {
+      onClose();
       setToBeEdit();
     }
   };
@@ -112,7 +135,6 @@ const TodoModal = ({ isOpen, onClose, onSubmit, todoData = null }) => {
     onClose();
     setToBeEdit();
   };
-  console.log(todoData);
 
   if (!isOpen) return null;
 
