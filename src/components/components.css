@@ -1,0 +1,81 @@
+.kanban-container {
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  padding: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+.kanban-board-header {
+  text-align: center;
+  margin-bottom: 24px;
+  padding: 16px 8px;
+}
+
+.kanban-board-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+}
+
+.kanban-board-subtitle {
+  font-size: 14px;
+  color: #718096;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.kanban-columns-container {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+  flex-direction: column;
+  flex-wrap: wrap;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* Mobile landscape and small tablets */
+@media (min-width: 640px) {
+  .kanban-columns-container {
+    flex-direction: row;
+    gap: 16px;
+    justify-content: center;
+  }
+}
+
+/* Tablets and desktop */
+@media (min-width: 768px) {
+  .kanban-container {
+    padding: 20px;
+  }
+
+  .kanban-board-header {
+    margin-bottom: 40px;
+    padding: 20px;
+  }
+
+  .kanban-board-title {
+    font-size: 32px;
+  }
+
+  .kanban-board-subtitle {
+    font-size: 16px;
+  }
+
+  .kanban-columns-container {
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: nowrap;
+    max-width: 1200px;
+  }
+}
+
+/* Large screens */
+@media (min-width: 1024px) {
+  .kanban-columns-container {
+    justify-content: center;
+  }
+}

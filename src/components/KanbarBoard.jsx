@@ -9,7 +9,8 @@ import { useContext } from "react";
 import { TaskDataContext } from "./TaskContext";
 
 const KanbarBoard = () => {
-  const { todosList, setTodosList } = useContext(TaskDataContext);
+  const { todosList, setTodosList, setUsersList, usersList } =
+    useContext(TaskDataContext);
 
   useEffect(() => {
     const fetchTodos = async () => {
@@ -18,6 +19,8 @@ const KanbarBoard = () => {
           `${import.meta.env.VITE_SERVER_URL}/api/task/get`
         );
         if (response.status === 200) {
+          const userMap = new Map();
+
           const newTodo = {
             todo: [],
             inProgress: [],
@@ -32,9 +35,17 @@ const KanbarBoard = () => {
             } else {
               newTodo.inProgress.push(t);
             }
+
+            if (t.assignedUser && !userMap.has(t.assignedUser._id)) {
+              userMap.set(t.assignedUser._id, {
+                value: t.assignedUser._id,
+                label: t.assignedUser.username,
+              });
+            }
           });
 
           setTodosList(newTodo);
+          setUsersList(Array.from(userMap.values()));
         }
       } catch (error) {
         console.log("error while fetching todos ", error);
@@ -46,12 +57,12 @@ const KanbarBoard = () => {
   useEffect(() => {
     const handleTaskCreated = (newTask) => {
       setTodosList((prev) => {
-        if (newTask.status === "Todo") {
+        if (newTask.status === "todo") {
           return {
             ...prev,
             todo: [...prev.todo, newTask],
           };
-        } else if (newTask.status === "In Progress") {
+        } else if (newTask.status === "inProgress") {
           return {
             ...prev,
             inProgress: [...prev.inProgress, newTask],
@@ -110,6 +121,33 @@ const KanbarBoard = () => {
     return () => socket.off("task:updated", handleTaskUpated);
   }, []);
 
+  useEffect(() => {
+    const handleTaskDeleted = ({ taskStatus, taskId }) => {
+      setTodosList((prev) => {
+        if (taskStatus === "todo") {
+          return {
+            ...prev,
+            todo: prev.todo.filter((t) => t._id !== taskId),
+          };
+        } else if (taskStatus === "inProgress") {
+          return {
+            ...prev,
+            inProgress: prev.inProgress.filter((t) => t._id !== taskId),
+          };
+        } else {
+          return {
+            ...prev,
+            done: prev.done.filter((t) => t._id !== taskId),
+          };
+        }
+      });
+    };
+
+    socket.on("task:deleted", handleTaskDeleted);
+
+    return () => socket.off("task:deleted", handleTaskDeleted);
+  }, []);
+
   const columnConfigs = [
     { title: "Todo", key: "todo", color: "#e3f2fd" },
     { title: "In Progress", key: "inProgress", color: "#fff3e0" },
@@ -139,12 +177,12 @@ const KanbarBoard = () => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div style={styles.container}>
-        <div style={styles.boardHeader}>
-          <h1 style={styles.boardTitle}>Project Board</h1>
-          <p style={styles.boardSubtitle}>Manage your tasks efficiently</p>
+      <div className="kanban-container">
+        <div className="kanban-board-header">
+          <h1 className="kanban-board-title">Project Board</h1>
+          <p className="kanban-board-subtitle">Manage your tasks efficiently</p>
         </div>
-        <div style={styles.columnsContainer}>
+        <div className="kanban-columns-container">
           {columnConfigs.map((config) => (
             <Column
               key={config.key}
@@ -159,40 +197,6 @@ const KanbarBoard = () => {
       </div>
     </DndProvider>
   );
-};
-
-const styles = {
-  container: {
-    minHeight: "100vh",
-    backgroundColor: "#f5f7fa",
-    padding: "20px",
-    fontFamily:
-      '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-  },
-  boardHeader: {
-    textAlign: "center",
-    marginBottom: "40px",
-    padding: "20px",
-  },
-  boardTitle: {
-    fontSize: "32px",
-    fontWeight: "700",
-    color: "#2d3748",
-    margin: "0 0 8px 0",
-  },
-  boardSubtitle: {
-    fontSize: "16px",
-    color: "#718096",
-    margin: "0",
-  },
-  columnsContainer: {
-    display: "flex",
-    gap: "24px",
-    justifyContent: "center",
-    flexWrap: "wrap",
-    maxWidth: "1200px",
-    margin: "0 auto",
-  },
 };
 
 export default KanbarBoard;

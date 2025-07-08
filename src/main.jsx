@@ -6,6 +6,7 @@ import LoginPage from "./components/LoginPage.jsx";
 import RegisterPage from "./components/RegisterPage.jsx";
 import { BrowserRouter, Routes, Route } from "react-router";
 import Authenticated from "./components/Authenticated.jsx";
+import UserLogs from "./components/UserLogs.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -28,6 +29,7 @@ createRoot(document.getElementById("root")).render(
             </Authenticated>
           }
         />
+        <Route path="/logs" element={<UserLogs />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>

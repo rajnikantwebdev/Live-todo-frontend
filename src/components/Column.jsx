@@ -24,9 +24,9 @@ const Column = ({ title, tasks, columnColor, columnKey, onDropTask }) => {
       </div>
 
       <div ref={drop} style={styles.tasksContainer}>
-        {tasks.map((task) => (
-          <TodoCard key={task._id} todoData={task} />
-        ))}
+        {tasks.map((task) => {
+          return <TodoCard key={task._id} todoData={task} />;
+        })}
 
         {tasks.length === 0 && (
           <div style={styles.emptyState}>

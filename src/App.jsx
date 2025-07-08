@@ -1,4 +1,4 @@
-import "./App.css";
+import "./components/components.css";
 import KanbarBoard from "./components/KanbarBoard";
 import Header from "./components/Header";
 import ModalContextProvider from "./components/ModalContext";
