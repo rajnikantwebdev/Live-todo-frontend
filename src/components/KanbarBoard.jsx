@@ -14,45 +14,42 @@ const KanbarBoard = () => {
     useContext(TaskDataContext);
 
   useEffect(() => {
-    const fetchTodos = async () => {
+    const fetchTodosAndUsers = async () => {
       try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_SERVER_URL}/api/task/get`
-        );
-        if (response.status === 200) {
-          const userMap = new Map();
+        const [taskRes, userRes] = await Promise.all([
+          axios.get(`${import.meta.env.VITE_SERVER_URL}/api/task/get`),
+          axios.get(`${import.meta.env.VITE_SERVER_URL}/api/user/list`),
+        ]);
 
+        if (taskRes.status === 200 && userRes.status === 200) {
+          console.log(userRes);
           const newTodo = {
             todo: [],
             inProgress: [],
             done: [],
           };
 
-          response.data?.data.forEach((t) => {
-            if (t.status === "todo") {
-              newTodo.todo.push(t);
-            } else if (t.status === "done") {
-              newTodo.done.push(t);
-            } else {
-              newTodo.inProgress.push(t);
-            }
-
-            if (t.assignedUser && !userMap.has(t.assignedUser._id)) {
-              userMap.set(t.assignedUser._id, {
-                value: t.assignedUser._id,
-                label: t.assignedUser.username,
-              });
-            }
+          taskRes.data?.data.forEach((t) => {
+            const status = t.status?.toLowerCase();
+            if (status === "todo") newTodo.todo.push(t);
+            else if (status === "done") newTodo.done.push(t);
+            else newTodo.inProgress.push(t);
           });
 
+          const userOptions = userRes.data.userList.map((user) => ({
+            value: user._id,
+            label: user.username,
+          }));
+
           setTodosList(newTodo);
-          setUsersList(Array.from(userMap.values()));
+          setUsersList(userOptions);
         }
       } catch (error) {
-        console.log("error while fetching todos ", error);
+        console.log("Error while fetching tasks or users: ", error);
       }
     };
-    fetchTodos();
+
+    fetchTodosAndUsers();
   }, []);
 
   useEffect(() => {
