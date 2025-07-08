@@ -79,3 +79,432 @@
     justify-content: center;
   }
 }
+
+/* Header css */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+.header-left-section {
+  display: flex;
+  align-items: center;
+}
+
+.header-logo {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+}
+
+.header-right-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-edit-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  background-color: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #4a5568;
+  width: 36px;
+  height: 36px;
+}
+
+.header-edit-button:hover {
+  background-color: #edf2f7;
+  transform: translateY(-1px);
+}
+
+.header-edit-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.header-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f8f9fa;
+}
+
+.header-link-container {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.header-link {
+  padding: 6px 12px;
+  background-color: #007bff;
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: Arial, sans-serif;
+  transition: all 0.3s ease;
+  border: 2px solid #007bff;
+  cursor: pointer;
+  display: inline-block;
+  text-align: center;
+  min-width: 70px;
+  white-space: nowrap;
+}
+
+.header-link:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+  transform: translateY(-1px);
+}
+
+.header-user-logs-link {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  text-decoration: none;
+  color: black;
+  font-size: 14px;
+}
+
+.header-user-logs-link img {
+  width: 20px;
+  height: 20px;
+}
+
+.header-user-logs-link span {
+  display: none;
+}
+
+/* Mobile landscape and small tablets */
+@media (min-width: 480px) {
+  .header-user-logs-link span {
+    display: inline;
+  }
+
+  .header-link {
+    font-size: 15px;
+    min-width: 75px;
+  }
+}
+
+/* Tablets and desktop */
+@media (min-width: 768px) {
+  .header {
+    padding: 16px 24px;
+  }
+
+  .header-logo {
+    font-size: 24px;
+  }
+
+  .header-right-section {
+    gap: 12px;
+  }
+
+  .header-edit-button {
+    padding: 8px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .header-edit-button svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .header-link-container {
+    gap: 20px;
+  }
+
+  .header-link {
+    font-size: 16px;
+    min-width: 80px;
+    padding: 8px 16px;
+  }
+}
+
+/* Large screens */
+@media (min-width: 1024px) {
+  .header {
+    padding: 16px 32px;
+  }
+
+  .header-right-section {
+    gap: 16px;
+  }
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 479px) {
+  .header-link-container {
+    gap: 8px;
+  }
+
+  .header-user-logs-link {
+    font-size: 12px;
+  }
+
+  .header-link {
+    font-size: 13px;
+    padding: 6px 10px;
+    min-width: 60px;
+  }
+}
+
+/* Header css end */
+
+/* Task card start */
+
+/* TodoCard.css */
+.todo-card {
+  background-color: #ffffff;
+  border: 1px solid #e1e8ed;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 10px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  max-width: 400px;
+}
+
+.todo-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.todo-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.todo-card__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+  line-height: 1.4;
+  flex: 1;
+  padding-right: 10px;
+}
+
+.todo-card__actions {
+  display: flex;
+  gap: 2px;
+}
+
+.todo-card__action-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  color: #57606f;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.todo-card__action-button:hover {
+  background-color: #f8f9fa;
+  color: #2c3e50;
+}
+
+.todo-card__action-button--delete {
+  color: #ff4757;
+}
+
+.todo-card__action-button--delete:hover {
+  background-color: #ffe6e6;
+  color: #e74c3c;
+}
+
+.todo-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.todo-card__description {
+  margin: 0;
+  font-size: 14px;
+  color: #57606f;
+  line-height: 1.5;
+}
+
+.todo-card__metadata {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.todo-card__assignment {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.todo-card__label {
+  font-size: 13px;
+  color: #8395a7;
+  font-weight: 500;
+  min-width: 80px;
+  white-space: nowrap;
+}
+
+.todo-card__status-priority {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 15px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.todo-card__badges {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.todo-card__badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.todo-card__icon {
+  width: 18px;
+  height: 18px;
+}
+
+.todo-card__smart-assign {
+  width: fit-content;
+  padding: 5px 10px;
+  border-radius: 30px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.todo-card__smart-assign:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+}
+
+.todo-card__smart-assign:active {
+  transform: translateY(0);
+}
+
+/* React-select custom styles container */
+.todo-card__select-container {
+  width: 120px;
+  min-width: 120px;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .todo-card {
+    max-width: 100%;
+    margin: 10px;
+    padding: 16px;
+  }
+
+  .todo-card__title {
+    font-size: 16px;
+    padding-right: 8px;
+  }
+
+  .todo-card__assignment {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .todo-card__label {
+    min-width: auto;
+  }
+
+  .todo-card__select-container {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .todo-card__status-priority {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .todo-card__badges {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .todo-card__smart-assign {
+    width: 100%;
+    padding: 8px 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .todo-card {
+    padding: 12px;
+  }
+
+  .todo-card__header {
+    margin-bottom: 12px;
+  }
+
+  .todo-card__content {
+    gap: 12px;
+  }
+
+  .todo-card__metadata {
+    gap: 10px;
+  }
+}
+
+/* Task card end */

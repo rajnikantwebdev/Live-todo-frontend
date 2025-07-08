@@ -7,6 +7,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { socket } from "../../socketIo";
 import { useContext } from "react";
 import { TaskDataContext } from "./TaskContext";
+import { toast } from "react-toastify";
 
 const KanbarBoard = () => {
   const { todosList, setTodosList, setUsersList, usersList } =
@@ -158,7 +159,7 @@ const KanbarBoard = () => {
     console.log(task.status, targetColumn);
     if (task.status === targetColumn) return;
     try {
-      await axios.put(
+      const response = await axios.put(
         `${import.meta.env.VITE_SERVER_URL}/api/task/update/${task._id}`,
         {
           ...task,
@@ -170,8 +171,18 @@ const KanbarBoard = () => {
           },
         }
       );
+
+      if (response.status === 200) {
+        toast(`Task moved from ${task.status} to ${targetColumn}`, {
+          type: "success",
+        });
+      }
     } catch (error) {
-      console.log("Unable to update the task ", error);
+      if (error) {
+        toast("Sorry, Failed to move task.", {
+          type: "error",
+        });
+      }
     }
   };
 

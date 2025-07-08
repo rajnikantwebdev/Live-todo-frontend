@@ -82,7 +82,7 @@ const TodoModal = ({ isOpen, onClose, onSubmit, todoData = null }) => {
     try {
       e.preventDefault();
       if (todoData) {
-        await axios.put(
+        const response = await axios.put(
           `${import.meta.env.VITE_SERVER_URL}/api/task/update/${todoData._id}`,
           formData,
           {
@@ -91,6 +91,12 @@ const TodoModal = ({ isOpen, onClose, onSubmit, todoData = null }) => {
             },
           }
         );
+
+        if (response.status === 200) {
+          toast(response.data.message, {
+            type: "success",
+          });
+        }
       } else {
         const response = await axios.post(
           `${import.meta.env.VITE_SERVER_URL}/api/task/add`,
@@ -108,15 +114,25 @@ const TodoModal = ({ isOpen, onClose, onSubmit, todoData = null }) => {
           });
         }
       }
-
-      onClose();
     } catch (error) {
-      if (error.response && error.response.data) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.status !== 401
+      ) {
         toast(error.response.data.message, {
           type: "error",
         });
+      }
+
+      if (error.response.status === 401) {
+        toast(error.response.data.message, {
+          type: "error",
+        });
+
         localStorage.removeItem("token");
       }
+
       console.log("Unable to add Task ", error);
     } finally {
       onClose();

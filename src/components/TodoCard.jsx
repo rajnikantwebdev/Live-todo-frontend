@@ -162,13 +162,13 @@ const TodoCard = ({ todoData }) => {
   };
 
   return (
-    <div style={styles.card} ref={drag}>
-      <div style={styles.header}>
-        <h3 style={styles.title}>{title || "Untitled Todo"}</h3>
+    <div className="todo-card" ref={drag}>
+      <div className="todo-card__header">
+        <h3 className="todo-card__title">{title || "Untitled Todo"}</h3>
         {isAuth && (
-          <div style={styles.actions}>
+          <div className="todo-card__actions">
             <button
-              style={styles.actionButton}
+              className="todo-card__action-button"
               onClick={() => handleTaskEdit(todoData._id, todoData.status)}
               title="Edit"
             >
@@ -178,7 +178,7 @@ const TodoCard = ({ todoData }) => {
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                style={styles.icon}
+                className="todo-card__icon"
               >
                 <path
                   strokeLinecap="round"
@@ -190,7 +190,7 @@ const TodoCard = ({ todoData }) => {
             <button
               onClick={handleDelete}
               title="Delete"
-              style={{ ...styles.actionButton, color: "red" }}
+              className="todo-card__action-button todo-card__action-button--delete"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -198,7 +198,7 @@ const TodoCard = ({ todoData }) => {
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                style={styles.icon}
+                className="todo-card__icon"
               >
                 <path
                   strokeLinecap="round"
@@ -211,48 +211,45 @@ const TodoCard = ({ todoData }) => {
         )}
       </div>
 
-      <div style={styles.content}>
-        <p style={styles.description}>
+      <div className="todo-card__content">
+        <p className="todo-card__description">
           {description || "No description provided"}
         </p>
 
-        <div style={styles.metadata}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              width: "100%",
-              justifyContent: "space-between",
-            }}
-          >
-            <span style={styles.label}>Assigned to:</span>
-            <Select
-              value={selectedValue}
-              onChange={handleSelected}
-              options={usersList}
-              styles={customSelectStyles}
-            />
+        <div className="todo-card__metadata">
+          <div className="todo-card__assignment">
+            <span className="todo-card__label">Assigned to:</span>
+            <div className="todo-card__select-container">
+              <Select
+                value={selectedValue}
+                onChange={handleSelected}
+                options={usersList}
+                styles={customSelectStyles}
+                placeholder="Select user..."
+                isSearchable={false}
+              />
+            </div>
           </div>
-          <div style={styles.statusPriority}>
-            <div style={{ display: "flex", gap: "10px" }}>
+
+          <div className="todo-card__status-priority">
+            <div className="todo-card__badges">
               <span
-                style={{
-                  ...styles.badge,
-                  backgroundColor: getStatusColor(status),
-                }}
+                className="todo-card__badge"
+                style={{ backgroundColor: getStatusColor(status) }}
               >
                 {status === "inProgress" ? "INPROG.." : status || "No Status"}
               </span>
               <span
-                style={{
-                  ...styles.badge,
-                  backgroundColor: getPriorityColor(priority),
-                }}
+                className="todo-card__badge"
+                style={{ backgroundColor: getPriorityColor(priority) }}
               >
                 {priority === "Medium" ? "MED" : priority || "No Priority"}
               </span>
             </div>
-            <button onClick={handleSmartAssign} style={styles.smartAssign}>
+            <button
+              onClick={handleSmartAssign}
+              className="todo-card__smart-assign"
+            >
               Smart Assign
             </button>
           </div>
@@ -260,118 +257,6 @@ const TodoCard = ({ todoData }) => {
       </div>
     </div>
   );
-};
-
-const styles = {
-  card: {
-    backgroundColor: "#ffffff",
-    border: "1px solid #e1e8ed",
-    borderRadius: "12px",
-    padding: "20px",
-    margin: "10px 0",
-    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-    transition: "all 0.3s ease",
-    cursor: "pointer",
-    fontFamily:
-      '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    maxWidth: "400px",
-  },
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: "15px",
-  },
-  title: {
-    margin: "0",
-    fontSize: "18px",
-    fontWeight: "600",
-    color: "#2c3e50",
-    lineHeight: "1.4",
-    flex: "1",
-    paddingRight: "10px",
-  },
-  actions: {
-    display: "flex",
-    gap: "2px",
-  },
-  actionButton: {
-    backgroundColor: "transparent",
-    border: "none",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    transition: "all 0.2s ease",
-    color: "#57606f",
-  },
-  deleteButton: {
-    color: "#ff4757",
-  },
-  content: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "15px",
-  },
-  description: {
-    margin: "0",
-    fontSize: "14px",
-    color: "#57606f",
-    lineHeight: "1.5",
-  },
-  metadata: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
-  },
-  metadataItem: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-  },
-  label: {
-    fontSize: "13px",
-    color: "#8395a7",
-    fontWeight: "500",
-    minWidth: "80px",
-  },
-  value: {
-    fontSize: "13px",
-    color: "#2c3e50",
-    fontWeight: "500",
-  },
-  statusPriority: {
-    display: "flex",
-    justifyContent: "space-between",
-    gap: "10px",
-    marginTop: "15px",
-    flexWrap: "wrap",
-  },
-  badge: {
-    padding: "4px 12px",
-    borderRadius: "20px",
-    fontSize: "12px",
-    fontWeight: "600",
-    color: "#ffffff",
-    textTransform: "uppercase",
-    letterSpacing: "0.5px",
-  },
-  icon: {
-    width: "18px",
-    height: "18px",
-  },
-  smartAssign: {
-    width: "fit-content",
-    paddingLeft: "10px",
-    paddingRight: "10px",
-    paddingTop: "5px",
-    paddingBottom: "5px",
-    borderRadius: "30px",
-    border: "none",
-    backgroundColor: "#007bff",
-    color: "white",
-    cursor: "pointer",
-  },
 };
 
 const customSelectStyles = {
