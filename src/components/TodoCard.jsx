@@ -246,12 +246,14 @@ const TodoCard = ({ todoData }) => {
                 {priority === "Medium" ? "MED" : priority || "No Priority"}
               </span>
             </div>
-            <button
-              onClick={handleSmartAssign}
-              className="todo-card__smart-assign"
-            >
-              Smart Assign
-            </button>
+            {isAuth && (
+              <button
+                onClick={handleSmartAssign}
+                className="todo-card__smart-assign"
+              >
+                Smart Assign
+              </button>
+            )}
           </div>
         </div>
       </div>

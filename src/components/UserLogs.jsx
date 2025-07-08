@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { socket } from "../../socketIo";
 
 const UserLogs = () => {
   const [logs, setLogs] = useState(null);
@@ -14,6 +15,22 @@ const UserLogs = () => {
         setLogs(response.data.data);
       }
     })();
+  }, []);
+
+  useEffect(() => {
+    const handleLogUpdate = (newLog) => {
+      console.log(newLog);
+      setLogs((prevLogs) => {
+        const updatedLogs = [newLog, ...(prevLogs || [])];
+        return updatedLogs.slice(0, 20);
+      });
+    };
+
+    socket.on("log:update", handleLogUpdate);
+
+    return () => {
+      socket.off("log:update", handleLogUpdate);
+    };
   }, []);
 
   const getActionColor = (action) => {
@@ -45,7 +62,11 @@ const UserLogs = () => {
             logs.map((log, index) => {
               const action = log?.data?.action;
               const actionText =
-                action !== "Edit" ? action + "d" : action + "ed";
+                action !== "edit" && action !== "re-assign"
+                  ? action !== "dragged and dropped"
+                    ? action + "d"
+                    : action
+                  : action + "ed";
 
               return (
                 <div key={index} style={styles.logItem}>

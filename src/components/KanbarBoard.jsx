@@ -156,7 +156,6 @@ const KanbarBoard = () => {
   ];
 
   const onDropTask = async (task, targetColumn) => {
-    console.log(task.status, targetColumn);
     if (task.status === targetColumn) return;
     try {
       const response = await axios.put(
@@ -164,6 +163,7 @@ const KanbarBoard = () => {
         {
           ...task,
           status: targetColumn,
+          dnd: true,
         },
         {
           headers: {

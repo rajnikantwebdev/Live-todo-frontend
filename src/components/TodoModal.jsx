@@ -15,6 +15,8 @@ const TodoModal = ({ isOpen, onClose, onSubmit, todoData = null }) => {
     priority: "",
   });
   const [assignedUserOptions, setAssignedUserOptions] = useState([]);
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { setToBeEdit } = useContext(TaskDataContext);
 
   useEffect(() => {
@@ -70,17 +72,72 @@ const TodoModal = ({ isOpen, onClose, onSubmit, todoData = null }) => {
     }
   }, [todoData, isOpen]);
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.title.trim()) {
+      newErrors.title = "Title is required";
+    } else if (formData.title.trim().length < 3) {
+      newErrors.title = "Title must be at least 3 characters long";
+    } else if (
+      formData.title.trim().toLowerCase() === "todo" ||
+      formData.title.trim().toLowerCase() === "in progress" ||
+      formData.title.trim().toLowerCase() === "done"
+    ) {
+      newErrors.title =
+        "Task title must not be exactly the same as a column name";
+    }
+
+    if (!formData.description.trim()) {
+      newErrors.description = "Description is required";
+    } else if (formData.description.trim().length < 10) {
+      newErrors.description = "Description must be at least 10 characters long";
+    }
+
+    if (!formData.assignedUser) {
+      newErrors.assignedUser = "Please select an assigned user";
+    }
+
+    if (!formData.status) {
+      newErrors.status = "Please select a status";
+    }
+
+    if (!formData.priority) {
+      newErrors.priority = "Please select a priority";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
+
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      toast("Please fill in all required fields correctly", {
+        type: "error",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
     try {
-      e.preventDefault();
       if (todoData) {
         const response = await axios.put(
           `${import.meta.env.VITE_SERVER_URL}/api/task/update/${todoData._id}`,
@@ -135,6 +192,7 @@ const TodoModal = ({ isOpen, onClose, onSubmit, todoData = null }) => {
 
       console.log("Unable to add Task ", error);
     } finally {
+      setIsSubmitting(false);
       onClose();
       setToBeEdit();
     }
@@ -155,20 +213,23 @@ const TodoModal = ({ isOpen, onClose, onSubmit, todoData = null }) => {
   if (!isOpen) return null;
 
   return createPortal(
-    <div style={styles.backdrop} onClick={handleBackdropClick}>
-      <div style={styles.modal}>
-        <div style={styles.header}>
-          <h2 style={styles.title}>
+    <div className="todo-modal-backdrop" onClick={handleBackdropClick}>
+      <div className="todo-modal">
+        <div className="todo-modal__header">
+          <h2 className="todo-modal__title">
             {todoData ? "Edit Todo" : "Create New Todo"}
           </h2>
-          <button style={styles.closeButton} onClick={onClose} type="button">
+          <button
+            className="todo-modal__close-button"
+            onClick={onClose}
+            type="button"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="size-6"
             >
               <path
                 strokeLinecap="round"
@@ -179,96 +240,138 @@ const TodoModal = ({ isOpen, onClose, onSubmit, todoData = null }) => {
           </button>
         </div>
 
-        <div style={styles.form}>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Title *</label>
+        <div className="todo-modal__form">
+          <div className="todo-modal__form-group">
+            <label className="todo-modal__label">Title *</label>
             <input
               type="text"
               name="title"
               value={formData.title}
               onChange={handleInputChange}
-              style={styles.input}
+              className={`todo-modal__input ${
+                errors.title ? "todo-modal__input--error" : ""
+              }`}
               placeholder="Enter todo title"
               required
             />
+            {errors.title && (
+              <span className="todo-modal__error-message">{errors.title}</span>
+            )}
           </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Description</label>
+          <div className="todo-modal__form-group">
+            <label className="todo-modal__label">Description</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleInputChange}
-              style={styles.textarea}
+              className={`todo-modal__textarea ${
+                errors.description ? "todo-modal__textarea--error" : ""
+              }`}
               placeholder="Enter todo description"
               rows="4"
             />
+            {errors.description && (
+              <span className="todo-modal__error-message">
+                {errors.description}
+              </span>
+            )}
           </div>
 
-          <div style={styles.formRow}>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Assigned User</label>
+          <div className="todo-modal__form-row">
+            <div className="todo-modal__form-group">
+              <label className="todo-modal__label">Assigned User</label>
               <select
                 name="assignedUser"
                 value={formData.assignedUser}
                 onChange={handleInputChange}
-                style={styles.select}
+                className={`todo-modal__select ${
+                  errors.assignedUser ? "todo-modal__select--error" : ""
+                }`}
               >
+                <option value="">Select user</option>
                 {assignedUserOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
                 ))}
               </select>
+              {errors.assignedUser && (
+                <span className="todo-modal__error-message">
+                  {errors.assignedUser}
+                </span>
+              )}
             </div>
 
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Status</label>
+            <div className="todo-modal__form-group">
+              <label className="todo-modal__label">Status</label>
               <select
                 name="status"
                 value={formData.status}
                 onChange={handleInputChange}
-                style={styles.select}
+                className={`todo-modal__select ${
+                  errors.status ? "todo-modal__select--error" : ""
+                }`}
               >
                 {statusOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
                 ))}
+                {errors.status && (
+                  <span className="todo-modal__error-message">
+                    {errors.status}
+                  </span>
+                )}
               </select>
             </div>
           </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Priority</label>
+          <div className="todo-modal__form-group">
+            <label className="todo-modal__label">Priority</label>
             <select
               name="priority"
               value={formData.priority}
               onChange={handleInputChange}
-              style={styles.select}
+              className={`todo-modal__select ${
+                errors.priority ? "todo-modal__select--error" : ""
+              }`}
             >
               {priorityOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
               ))}
+              {errors.priority && (
+                <span className="todo-modal__error-message">
+                  {errors.priority}
+                </span>
+              )}
             </select>
           </div>
 
-          <div style={styles.buttonGroup}>
+          <div className="todo-modal__button-group">
             <button
               type="button"
               onClick={handleCancel}
-              style={styles.cancelButton}
+              className="todo-modal__cancel-button"
+              disabled={isSubmitting}
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={handleSubmit}
-              style={styles.submitButton}
+              disabled={isSubmitting}
+              className="todo-modal__submit-button"
             >
-              {todoData ? "Update Todo" : "Create Todo"}
+              {isSubmitting
+                ? todoData
+                  ? "Updating..."
+                  : "Creating..."
+                : todoData
+                ? "Update Todo"
+                : "Create Todo"}
             </button>
           </div>
         </div>

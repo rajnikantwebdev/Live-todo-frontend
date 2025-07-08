@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link } from "react-router";
 import axios from "axios";
 import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -15,8 +17,6 @@ const RegisterPage = () => {
     password: "",
     submissionError: "",
   });
-
-  const [submissionMessage, setSubmissionMessage] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -69,10 +69,11 @@ const RegisterPage = () => {
         `${import.meta.env.VITE_SERVER_URL}/api/user/register`,
         formData
       );
-      console.log(response);
-      setSubmissionMessage(response?.data?.message);
       setFormData({ username: "", password: "" });
       if (response.status === 201) {
+        toast(response.data.message, {
+          type: "success",
+        });
         setTimeout(() => navigate("/login"), 2000);
       }
     } catch (error) {
@@ -81,7 +82,9 @@ const RegisterPage = () => {
         error.response.data &&
         error.response.data.message
       ) {
-        setErrors({ ...error, submissionError: error.response.data.message });
+        toast(error.response.data.message, {
+          type: "error",
+        });
       }
     } finally {
       setIsSubmitting(false);
@@ -90,6 +93,7 @@ const RegisterPage = () => {
 
   return (
     <div style={styles.container}>
+      <ToastContainer />
       <div style={styles.formContainer}>
         <h2 style={styles.title}>Create Your Account</h2>
 
@@ -153,16 +157,6 @@ const RegisterPage = () => {
           <Link style={styles.linkButton} to={"/login"}>
             Already have an account? Login here
           </Link>
-        </div>
-        <div style={styles.successMessage}>
-          {submissionMessage && <span>{submissionMessage}</span>}
-        </div>
-        <div style={{ textAlign: "center" }}>
-          {errors.submissionError && (
-            <span style={{ ...styles.errorMessage, fontSize: "16px" }}>
-              {errors.submissionError}
-            </span>
-          )}
         </div>
       </div>
     </div>
