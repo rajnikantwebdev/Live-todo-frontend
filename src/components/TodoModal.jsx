@@ -84,7 +84,7 @@ const TodoModal = ({ isOpen, onClose, onSubmit, todoData = null }) => {
       if (todoData) {
         await axios.put(
           `${import.meta.env.VITE_SERVER_URL}/api/task/update/${todoData._id}`,
-          { ...formData, lastTimeUpdate: "2023-01-01T10:00:00.000Z" },
+          formData,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
